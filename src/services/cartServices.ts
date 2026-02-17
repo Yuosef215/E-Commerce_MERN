@@ -44,7 +44,7 @@ export const addItemToCart = async ({
     // ✅ كان غلط قبل كده: getActiveCartForUser بتاخد userId
     const cart = await getActiveCartForUser({ userId });
 
-    // ✅ مقارنة آمنة (عشان ObjectId vs string)
+
     const existingInCart = cart.items.find(
         (p: any) => String(p.product) === String(productId)
     );
@@ -56,7 +56,6 @@ export const addItemToCart = async ({
     const product = await productModel.findById(productId);
 
     if (!product) {
-        // ✅ لازم statusCode موجود دايمًا
         return { data: "Product not found!", statusCode: 404 };
     }
 
@@ -64,7 +63,7 @@ export const addItemToCart = async ({
         return { data: "Low Stock for item", statusCode: 400 };
     }
 
-    // ✅ push الصحيح (لازم object)
+    //  push الصحيح (لازم object)
     cart.items.push({
         product: productId,
         unitePrice: product.price,
@@ -77,3 +76,45 @@ export const addItemToCart = async ({
 
     return { data: updated, statusCode: 200 };
 };
+
+interface UpdetedItemToCart {
+    productId: any;
+    quantity: number;
+    userId: string; //  توحيد الاسم
+}
+
+export const UpdetedItemcart = async ({ productId, quantity, userId }: UpdetedItemToCart) => {
+    const cart = await getActiveCartForUser({ userId });
+    const existingInCart = cart.items.find(
+        (p: any) => String(p.product) === String(productId)
+    );
+
+    const product = await productModel.findById(productId);
+    if (!existingInCart) {
+        return { data: "Item dose not exsted in cart!", statusCode: 400 };
+    }
+     if (!product) {
+        return { data: "Product not found!", statusCode: 404 };
+    }
+
+    if (product.stock < quantity) {
+        return { data: "Low Stock for item", statusCode: 400 };
+    }
+    
+    const otherCartItems = cart.items.filter(
+        (p: any) => p.product.toString() !== String(productId)
+    );
+    
+    const total = otherCartItems.reduce((sum: number, item: any) => {
+        return sum + item.quantity * item.unitePrice;
+    }, 0);
+    
+    const newTotal = total + existingInCart.quantity * existingInCart.unitePrice;
+    cart.totalAmount=total;
+    existingInCart.quantity = quantity;
+    cart.totalAmount = newTotal;
+    
+    const Updetedcart = await cart.save();
+    return { data: Updetedcart, statusCode: 200 }
+
+}
