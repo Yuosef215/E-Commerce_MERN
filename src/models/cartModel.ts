@@ -15,7 +15,7 @@ export interface ICart extends Document {
     userId:ObjectId | string;
     items: ICartItem[];
     totalAmount: number;
-    stauts: "active" | "active";
+    stauts: "active" | "completed";
 }
 
 const cartItemSchema = new Schema<ICartItem>({

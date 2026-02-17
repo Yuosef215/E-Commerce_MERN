@@ -1,5 +1,5 @@
 import express from 'express'
-import { addItemToCart, clearCart, DeleteItemInCart, getActiveCartForUser, UpdetedItemcart } from '../services/cartServices.js';
+import { addItemToCart, cheakout, clearCart, DeleteItemInCart, getActiveCartForUser, UpdetedItemcart } from '../services/cartServices.js';
 import validateJWT from '../middellwears/validateJWT.js';
 import type { ExtendeRequst } from '../types/ExtendeRequst.js';
 
@@ -37,6 +37,13 @@ router.delete('/items/:productId',validateJWT,async(req:ExtendeRequst,res) =>{
     const userId = req.user._id;
     const {productId} = req.params;
     const response = await DeleteItemInCart ({userId,productId});
+    res.status(response.statusCode ?? 200).send(response.data);
+})
+
+router.post('/cheakout',validateJWT,async(req:ExtendeRequst,res) =>{
+    const userId = req.user._id;
+    const {address} = req.body;
+    const response = await cheakout({userId,address});
     res.status(response.statusCode ?? 200).send(response.data);
 })
 
