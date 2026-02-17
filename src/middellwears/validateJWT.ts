@@ -19,7 +19,7 @@ if (!token) {
   return res.status(403).send("Bearer token not found");
 }
 
-    jwt.verify(token, 'ibVFBzyN7tO7E6q0maJsOwVsGZ4/nGbaP3fVaCOtZmc=',async (err, pyload) => {
+    jwt.verify(token, process.env.JWT_SCRITE || ' ',async (err, pyload) => {
         if (err) {
             res.status(403).send("Invaild token");
             return;
